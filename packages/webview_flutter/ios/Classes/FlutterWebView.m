@@ -67,6 +67,8 @@
     [self onUpdateSettings:call result:result];
   } else if ([[call method] isEqualToString:@"loadUrl"]) {
     [self onLoadUrl:call result:result];
+  } else if ([[call method] isEqualToString:@"getUserAgent"]) {
+    [self onGetUserAgent:call result:result];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -86,6 +88,18 @@
   } else {
     result(nil);
   }
+}
+
+- (void)onGetUserAgent:(FlutterMethodCall*)call result:(FlutterResult)result {
+  [_webView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(NSString* userAgent, NSError*  error) {
+    if (error) {
+      result([FlutterError errorWithCode:@"getUserAgent_failed"
+                                 message:@"Failed gettting UserAgent"
+                                 details:[NSString stringWithFormat:@"webview_flutter: fail evaluating JavaScript: %@", [error localizedDescription]]]);
+    } else {
+      result(userAgent);
+    }
+  }];
 }
 
 - (void)applySettings:(NSDictionary<NSString*, id>*)settings {

@@ -214,6 +214,11 @@ class WebViewController {
     return _channel.invokeMethod('loadUrl', url);
   }
 
+  Future<String> getUserAgent() async {
+    final String userAgent = await _channel.invokeMethod('getUserAgent');
+    return Future<String>.value(userAgent);
+  }
+
   Future<void> _updateSettings(Map<String, dynamic> update) async {
     return _channel.invokeMethod('updateSettings', update);
   }

@@ -2,6 +2,7 @@ package io.flutter.plugins.webviewflutter;
 
 import android.content.Context;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -38,6 +39,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       case "loadUrl":
         loadUrl(methodCall, result);
         break;
+      case "getUserAgent":
+        getUserAgent(methodCall, result);
+        break;
       case "updateSettings":
         updateSettings(methodCall, result);
         break;
@@ -50,6 +54,11 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     String url = (String) methodCall.arguments;
     webView.loadUrl(url);
     result.success(null);
+  }
+
+  private void getUserAgent(MethodCall methodCall, Result result) {
+    String userAgent = webView.getSettings().getUserAgentString();
+    result.success(userAgent);
   }
 
   @SuppressWarnings("unchecked")

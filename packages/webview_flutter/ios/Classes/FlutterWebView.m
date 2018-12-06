@@ -93,6 +93,9 @@
     if ([key isEqualToString:@"jsMode"]) {
       NSNumber* mode = settings[key];
       [self updateJsMode:mode];
+    } else if ([key isEqualToString:@"userAgent"]) {
+      NSString* userAgent = settings[key];
+      [self updateUserAgent:[userAgent isEqual:[NSNull null]] ? nil : userAgent];
     } else {
       NSLog(@"webview_flutter: unknown setting key: %@", key);
     }
@@ -110,6 +113,16 @@
       break;
     default:
       NSLog(@"webview_flutter: unknown javascript mode: %@", mode);
+  }
+}
+
+- (void)updateUserAgent:(NSString*)userAgent {
+  if (@available(iOS 9.0, *)) {
+    [_webView setCustomUserAgent:userAgent];
+  } else if (userAgent) {
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent": userAgent}];
+    WKWebViewConfiguration* configuration = _webView.configuration;
+    _webView = [[WKWebView alloc] initWithFrame:_webView.frame configuration:configuration];
   }
 }
 

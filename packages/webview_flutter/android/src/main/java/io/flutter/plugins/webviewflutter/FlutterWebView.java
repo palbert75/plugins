@@ -64,6 +64,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         case "jsMode":
           updateJsMode((Integer) settings.get(key));
           break;
+        case "userAgent":
+          updateUserAgent((String) settings.get(key));
+          break;
         default:
           throw new IllegalArgumentException("Unknown WebView setting: " + key);
       }
@@ -81,6 +84,10 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       default:
         throw new IllegalArgumentException("Trying to set unknown Javascript mode: " + mode);
     }
+  }
+
+  private void updateUserAgent(String userAgent) {
+    webView.getSettings().setUserAgentString(userAgent);
   }
 
   @Override

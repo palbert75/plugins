@@ -91,15 +91,19 @@
 }
 
 - (void)onGetUserAgent:(FlutterMethodCall*)call result:(FlutterResult)result {
-  [_webView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(NSString* userAgent, NSError*  error) {
-    if (error) {
-      result([FlutterError errorWithCode:@"getUserAgent_failed"
-                                 message:@"Failed gettting UserAgent"
-                                 details:[NSString stringWithFormat:@"webview_flutter: fail evaluating JavaScript: %@", [error localizedDescription]]]);
-    } else {
-      result(userAgent);
-    }
-  }];
+  [_webView evaluateJavaScript:@"navigator.userAgent"
+             completionHandler:^(NSString* userAgent, NSError* error) {
+               if (error) {
+                 result([FlutterError
+                     errorWithCode:@"getUserAgent_failed"
+                           message:@"Failed gettting UserAgent"
+                           details:[NSString stringWithFormat:
+                                                 @"webview_flutter: fail evaluating JavaScript: %@",
+                                                 [error localizedDescription]]]);
+               } else {
+                 result(userAgent);
+               }
+             }];
 }
 
 - (void)applySettings:(NSDictionary<NSString*, id>*)settings {
@@ -134,7 +138,7 @@
   if (@available(iOS 9.0, *)) {
     [_webView setCustomUserAgent:userAgent];
   } else if (userAgent) {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent": userAgent}];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : userAgent}];
     WKWebViewConfiguration* configuration = _webView.configuration;
     _webView = [[WKWebView alloc] initWithFrame:_webView.frame configuration:configuration];
   }

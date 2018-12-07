@@ -2,7 +2,6 @@ package io.flutter.plugins.webviewflutter;
 
 import android.content.Context;
 import android.view.View;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;

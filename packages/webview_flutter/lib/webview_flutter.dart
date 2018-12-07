@@ -162,13 +162,11 @@ class _CreationParams {
 }
 
 class _WebSettings {
-  _WebSettings({
-    this.javaScriptMode,
-    this.userAgent
-  });
+  _WebSettings({this.javaScriptMode, this.userAgent});
 
   static _WebSettings fromWidget(WebView widget) {
-    return _WebSettings(javaScriptMode: widget.javaScriptMode, userAgent: widget.userAgent);
+    return _WebSettings(
+        javaScriptMode: widget.javaScriptMode, userAgent: widget.userAgent);
   }
 
   final JavaScriptMode javaScriptMode;
@@ -183,7 +181,8 @@ class _WebSettings {
   }
 
   Map<String, dynamic> updatesMap(_WebSettings newSettings) {
-    if (javaScriptMode == newSettings.javaScriptMode && userAgent == newSettings.userAgent) {
+    if (javaScriptMode == newSettings.javaScriptMode &&
+        userAgent == newSettings.userAgent) {
       return null;
     }
     return <String, dynamic>{

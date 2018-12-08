@@ -41,6 +41,11 @@
                   binaryMessenger:(NSObject<FlutterBinaryMessenger>*)messenger {
   if ([super init]) {
     _viewId = viewId;
+    NSDictionary<NSString*, id>* settings = args[@"settings"];
+    NSString* userAgent = settings[@"userAgent"];
+    if (userAgent && userAgent != (id)[NSNull null]) {
+      [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : userAgent}];
+    }
     _webView = [[WKWebView alloc] initWithFrame:frame];
     NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_%lld", viewId];
     _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
@@ -48,7 +53,6 @@
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
     }];
-    NSDictionary<NSString*, id>* settings = args[@"settings"];
     [self applySettings:settings];
     NSString* initialUrl = args[@"initialUrl"];
     if (initialUrl) {
@@ -137,10 +141,6 @@
 - (void)updateUserAgent:(NSString*)userAgent {
   if (@available(iOS 9.0, *)) {
     [_webView setCustomUserAgent:userAgent];
-  } else if (userAgent) {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : userAgent}];
-    WKWebViewConfiguration* configuration = _webView.configuration;
-    _webView = [[WKWebView alloc] initWithFrame:_webView.frame configuration:configuration];
   }
 }
 

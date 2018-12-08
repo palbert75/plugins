@@ -96,7 +96,7 @@
                if (error) {
                  result([FlutterError
                      errorWithCode:@"getUserAgent_failed"
-                           message:@"Failed gettting UserAgent"
+                           message:@"Failed getting UserAgent"
                            details:[NSString stringWithFormat:
                                                  @"webview_flutter: fail evaluating JavaScript: %@",
                                                  [error localizedDescription]]]);

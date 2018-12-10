@@ -44,6 +44,18 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       case "updateSettings":
         updateSettings(methodCall, result);
         break;
+      case "canGoBack":
+        canGoBack(methodCall, result);
+        break;
+      case "canGoForward":
+        canGoForward(methodCall, result);
+        break;
+      case "goBack":
+        goBack(methodCall, result);
+        break;
+      case "goForward":
+        goForward(methodCall, result);
+        break;
       default:
         result.notImplemented();
     }
@@ -58,6 +70,28 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private void getUserAgent(MethodCall methodCall, Result result) {
     String userAgent = webView.getSettings().getUserAgentString();
     result.success(userAgent);
+  }
+
+  private void canGoBack(MethodCall methodCall, Result result) {
+    result.success(webView.canGoBack());
+  }
+
+  private void canGoForward(MethodCall methodCall, Result result) {
+    result.success(webView.canGoForward());
+  }
+
+  private void goBack(MethodCall methodCall, Result result) {
+    if (webView.canGoBack()) {
+      webView.goBack();
+    }
+    result.success(null);
+  }
+
+  private void goForward(MethodCall methodCall, Result result) {
+    if (webView.canGoForward()) {
+      webView.goForward();
+    }
+    result.success(null);
   }
 
   @SuppressWarnings("unchecked")

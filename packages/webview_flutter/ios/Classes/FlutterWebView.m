@@ -44,6 +44,8 @@
     NSDictionary<NSString*, id>* settings = args[@"settings"];
     NSString* userAgent = settings[@"userAgent"];
     if (userAgent && userAgent != (id)[NSNull null]) {
+      // For iOS 8 and earlier, this statement is required setting UserAgent string to
+      // NSUserDefaults before initializing WKWebView.
       [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : userAgent}];
     }
     _webView = [[WKWebView alloc] initWithFrame:frame];

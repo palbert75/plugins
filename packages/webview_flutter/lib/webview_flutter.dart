@@ -213,6 +213,7 @@ class WebViewController {
     return _channel.invokeMethod('loadUrl', url);
   }
 
+  /// Gets the UserAgent.
   Future<String> getUserAgent() async {
     final String userAgent = await _channel.invokeMethod('getUserAgent');
     return Future<String>.value(userAgent);

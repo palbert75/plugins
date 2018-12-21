@@ -41,6 +41,13 @@
               binaryMessenger:(NSObject<FlutterBinaryMessenger>*)messenger {
   if ([super init]) {
     _viewId = viewId;
+    NSDictionary<NSString*, id>* settings = args[@"settings"];
+    NSString* userAgent = settings[@"userAgent"];
+    if (userAgent && userAgent != (id)[NSNull null]) {
+      // For iOS 8 and earlier, this statement is required setting UserAgent string to
+      // NSUserDefaults before initializing WKWebView.
+      [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : userAgent}];
+    }
     _webView = [[WKWebView alloc] initWithFrame:frame];
     NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_%lld", viewId];
     _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
@@ -48,10 +55,9 @@
     [_channel setMethodCallHandler:^(FlutterMethodCall* call, FlutterResult result) {
       [weakSelf onMethodCall:call result:result];
     }];
-    NSDictionary<NSString*, id>* settings = args[@"settings"];
     [self applySettings:settings];
     NSString* initialUrl = args[@"initialUrl"];
-    if (initialUrl && initialUrl != [NSNull null]) {
+    if (initialUrl && initialUrl != (id)[NSNull null]) {
       [self loadUrl:initialUrl];
     }
   }
@@ -67,6 +73,8 @@
     [self onUpdateSettings:call result:result];
   } else if ([[call method] isEqualToString:@"loadUrl"]) {
     [self onLoadUrl:call result:result];
+  } else if ([[call method] isEqualToString:@"getUserAgent"]) {
+    [self onGetUserAgent:call result:result];
   } else if ([[call method] isEqualToString:@"canGoBack"]) {
     [self onCanGoBack:call result:result];
   } else if ([[call method] isEqualToString:@"canGoForward"]) {
@@ -98,6 +106,22 @@
   } else {
     result(nil);
   }
+}
+
+- (void)onGetUserAgent:(FlutterMethodCall*)call result:(FlutterResult)result {
+  [_webView evaluateJavaScript:@"navigator.userAgent"
+             completionHandler:^(NSString* userAgent, NSError* error) {
+               if (error) {
+                 result([FlutterError
+                     errorWithCode:@"getUserAgent_failed"
+                           message:@"Failed getting UserAgent"
+                           details:[NSString stringWithFormat:
+                                                 @"webview_flutter: fail evaluating JavaScript: %@",
+                                                 [error localizedDescription]]]);
+               } else {
+                 result(userAgent);
+               }
+             }];
 }
 
 - (void)onCanGoBack:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -135,6 +159,9 @@
     if ([key isEqualToString:@"jsMode"]) {
       NSNumber* mode = settings[key];
       [self updateJsMode:mode];
+    } else if ([key isEqualToString:@"userAgent"]) {
+      NSString* userAgent = settings[key];
+      [self updateUserAgent:[userAgent isEqual:[NSNull null]] ? nil : userAgent];
     } else {
       NSLog(@"webview_flutter: unknown setting key: %@", key);
     }
@@ -152,6 +179,12 @@
       break;
     default:
       NSLog(@"webview_flutter: unknown javascript mode: %@", mode);
+  }
+}
+
+- (void)updateUserAgent:(NSString*)userAgent {
+  if (@available(iOS 9.0, *)) {
+    [_webView setCustomUserAgent:userAgent];
   }
 }
 

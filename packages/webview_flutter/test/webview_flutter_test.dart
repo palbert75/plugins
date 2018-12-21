@@ -59,6 +59,42 @@ void main() {
     expect(platformWebView.javaScriptMode, JavaScriptMode.disabled);
   });
 
+  testWidgets('Set UserAgent', (WidgetTester tester) async {
+    await tester.pumpWidget(const WebView(
+      initialUrl: 'https://youtube.com',
+      javaScriptMode: JavaScriptMode.unrestricted,
+    ));
+
+    final FakePlatformWebView platformWebView =
+        fakePlatformViewsController.lastCreatedView;
+
+    expect(platformWebView.userAgent, isNull);
+
+    await tester.pumpWidget(const WebView(
+      initialUrl: 'https://youtube.com',
+      javaScriptMode: JavaScriptMode.unrestricted,
+      userAgent: 'UA',
+    ));
+
+    expect(platformWebView.userAgent, 'UA');
+  });
+
+  testWidgets('Get UserAgent', (WidgetTester tester) async {
+    WebViewController controller;
+    await tester.pumpWidget(
+      WebView(
+        initialUrl: 'https://youtube.com',
+        javaScriptMode: JavaScriptMode.unrestricted,
+        userAgent: 'UA',
+        onWebViewCreated: (WebViewController webViewController) {
+          controller = webViewController;
+        },
+      ),
+    );
+    expect(controller, isNotNull);
+    expect(await controller.getUserAgent(), 'UA');
+  });
+
   testWidgets('Load url', (WidgetTester tester) async {
     WebViewController controller;
     await tester.pumpWidget(
@@ -322,6 +358,7 @@ class FakePlatformWebView {
         currentPosition++;
       }
       javaScriptMode = JavaScriptMode.values[params['settings']['jsMode']];
+      userAgent = params['settings']['userAgent'];
     }
     channel = MethodChannel(
         'plugins.flutter.io/webview_$id', const StandardMethodCodec());
@@ -336,6 +373,7 @@ class FakePlatformWebView {
 
   String get currentUrl => history.isEmpty ? null : history[currentPosition];
   JavaScriptMode javaScriptMode;
+  String userAgent;
 
   Future<dynamic> onMethodCall(MethodCall call) {
     switch (call.method) {
@@ -346,11 +384,14 @@ class FakePlatformWebView {
         currentPosition++;
         amountOfReloadsOnCurrentUrl = 0;
         return Future<void>.sync(() {});
+      case 'getUserAgent':
+        return Future<String>.sync(() => userAgent);
       case 'updateSettings':
         if (call.arguments['jsMode'] == null) {
           break;
         }
         javaScriptMode = JavaScriptMode.values[call.arguments['jsMode']];
+        userAgent = call.arguments['userAgent'];
         break;
       case 'canGoBack':
         return Future<bool>.sync(() => currentPosition > 0);

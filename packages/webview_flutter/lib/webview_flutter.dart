@@ -32,6 +32,7 @@ class WebView extends StatefulWidget {
     this.onWebViewCreated,
     this.initialUrl,
     this.javaScriptMode = JavaScriptMode.disabled,
+    this.userAgent,
     this.gestureRecognizers,
   })  : assert(javaScriptMode != null),
         super(key: key);
@@ -55,6 +56,9 @@ class WebView extends StatefulWidget {
 
   /// Whether JavaScript execution is enabled.
   final JavaScriptMode javaScriptMode;
+
+  /// The custom UserAgent.
+  final String userAgent;
 
   @override
   State<StatefulWidget> createState() => _WebViewState();
@@ -158,28 +162,32 @@ class _CreationParams {
 }
 
 class _WebSettings {
-  _WebSettings({
-    this.javaScriptMode,
-  });
+  _WebSettings({this.javaScriptMode, this.userAgent});
 
   static _WebSettings fromWidget(WebView widget) {
-    return _WebSettings(javaScriptMode: widget.javaScriptMode);
+    return _WebSettings(
+        javaScriptMode: widget.javaScriptMode, userAgent: widget.userAgent);
   }
 
   final JavaScriptMode javaScriptMode;
 
+  final String userAgent;
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'jsMode': javaScriptMode.index,
+      'userAgent': userAgent,
     };
   }
 
   Map<String, dynamic> updatesMap(_WebSettings newSettings) {
-    if (javaScriptMode == newSettings.javaScriptMode) {
+    if (javaScriptMode == newSettings.javaScriptMode &&
+        userAgent == newSettings.userAgent) {
       return null;
     }
     return <String, dynamic>{
       'jsMode': newSettings.javaScriptMode.index,
+      'userAgent': newSettings.userAgent
     };
   }
 }
@@ -215,6 +223,12 @@ class WebViewController {
   Future<String> currentUrl() async {
     final String url = await _channel.invokeMethod('currentUrl');
     return url;
+  }
+
+  /// Gets the UserAgent.
+  Future<String> getUserAgent() async {
+    final String userAgent = await _channel.invokeMethod('getUserAgent');
+    return Future<String>.value(userAgent);
   }
 
   /// Checks whether there's a back history item.

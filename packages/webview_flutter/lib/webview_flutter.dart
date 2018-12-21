@@ -209,7 +209,7 @@ class _WebSettings {
     }
     return <String, dynamic>{
       'jsMode': newSettings.javaScriptMode.index,
-      'userAgent': newSettings.userAgent
+      'userAgent': newSettings.userAgent,
       'clearCookies': newSettings.clearCookies,
     };
   }

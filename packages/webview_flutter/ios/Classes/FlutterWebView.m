@@ -72,8 +72,8 @@
     [self onUpdateSettings:call result:result];
   } else if ([[call method] isEqualToString:@"loadUrl"]) {
     [self onLoadUrl:call result:result];
-  } else if ([[call method] isEqualToString:@"getUserAgent"]) {
-    [self onGetUserAgent:call result:result];
+  } else if ([[call method] isEqualToString:@"userAgent"]) {
+    [self onUserAgent:call result:result];
   } else if ([[call method] isEqualToString:@"canGoBack"]) {
     [self onCanGoBack:call result:result];
   } else if ([[call method] isEqualToString:@"canGoForward"]) {
@@ -103,12 +103,12 @@
   }
 }
 
-- (void)onGetUserAgent:(FlutterMethodCall*)call result:(FlutterResult)result {
+- (void)onUserAgent:(FlutterMethodCall*)call result:(FlutterResult)result {
   [_webView evaluateJavaScript:@"navigator.userAgent"
              completionHandler:^(NSString* userAgent, NSError* error) {
                if (error) {
                  result([FlutterError
-                     errorWithCode:@"getUserAgent_failed"
+                     errorWithCode:@"userAgent_failed"
                            message:@"Failed getting UserAgent"
                            details:[NSString stringWithFormat:
                                                  @"webview_flutter: fail evaluating JavaScript: %@",

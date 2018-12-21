@@ -213,6 +213,18 @@ class WebViewController {
     return _channel.invokeMethod('loadUrl', url);
   }
 
+  /// Accessor to the current URL that the WebView is displaying.
+  ///
+  /// If [WebView.initialUrl] was never specified, returns `null`.
+  /// Note that this operation is asynchronous, and it is possible that the
+  /// current URL changes again by the time this function returns (in other
+  /// words, by the time this future completes, the WebView may be displaying a
+  /// different URL).
+  Future<String> currentUrl() async {
+    final String url = await _channel.invokeMethod('currentUrl');
+    return url;
+  }
+
   /// Accessor to the UserAgent.
   Future<String> userAgent() async {
     final String userAgent = await _channel.invokeMethod('userAgent');
@@ -251,12 +263,17 @@ class WebViewController {
     return _channel.invokeMethod("goForward");
   }
 
+  /// Reloads the current URL.
+  Future<void> reload() async {
+    return _channel.invokeMethod("reload");
+  }
+
   Future<void> _updateSettings(Map<String, dynamic> update) async {
     return _channel.invokeMethod('updateSettings', update);
   }
 }
 
-// Throws an ArgumentError if url is not a valid url string.
+// Throws an ArgumentError if `url` is not a valid URL string.
 void _validateUrlString(String url) {
   try {
     final Uri uri = Uri.parse(url);

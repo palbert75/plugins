@@ -92,7 +92,7 @@ void main() {
       ),
     );
     expect(controller, isNotNull);
-    expect(await controller.getUserAgent(), 'UA');
+    expect(await controller.userAgent(), 'UA');
   });
 
   testWidgets('Clear cookies', (WidgetTester tester) async {
@@ -461,7 +461,7 @@ class FakePlatformWebView {
         BinaryMessages.handlePlatformMessage(channel.name, message, (_) {});
         return Future<void>.sync(() {});
         break;
-      case 'getUserAgent':
+      case 'userAgent':
         return Future<String>.sync(() => userAgent);
         break;
       case 'stopLoading':

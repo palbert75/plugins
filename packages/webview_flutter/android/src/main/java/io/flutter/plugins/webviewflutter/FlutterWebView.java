@@ -1,7 +1,9 @@
 package io.flutter.plugins.webviewflutter;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.WebView;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -124,6 +126,11 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         case "userAgent":
           updateUserAgent((String) settings.get(key));
           break;
+        case "clearCookies":
+          if ((Boolean) settings.get(key)) {
+            removeAllCookies();
+          }
+          break;
         default:
           throw new IllegalArgumentException("Unknown WebView setting: " + key);
       }
@@ -145,6 +152,14 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
   private void updateUserAgent(String userAgent) {
     webView.getSettings().setUserAgentString(userAgent);
+  }
+
+  private void removeAllCookies() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      CookieManager.getInstance().removeAllCookies(null);
+    } else {
+      CookieManager.getInstance().removeAllCookie();
+    }
   }
 
   @Override

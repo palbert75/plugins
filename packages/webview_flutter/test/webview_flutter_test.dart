@@ -95,6 +95,23 @@ void main() {
     expect(await controller.getUserAgent(), 'UA');
   });
 
+  testWidgets('Clear cookies', (WidgetTester tester) async {
+    await tester.pumpWidget(const WebView(
+      clearCookies: false,
+    ));
+
+    final FakePlatformWebView platformWebView =
+        fakePlatformViewsController.lastCreatedView;
+
+    expect(platformWebView.clearCookies, false);
+
+    await tester.pumpWidget(const WebView(
+      clearCookies: true,
+    ));
+
+    expect(platformWebView.clearCookies, true);
+  });
+
   testWidgets('Load url', (WidgetTester tester) async {
     WebViewController controller;
     await tester.pumpWidget(
@@ -359,6 +376,7 @@ class FakePlatformWebView {
       }
       javaScriptMode = JavaScriptMode.values[params['settings']['jsMode']];
       userAgent = params['settings']['userAgent'];
+      clearCookies = params['settings']['clearCookies'];
     }
     channel = MethodChannel(
         'plugins.flutter.io/webview_$id', const StandardMethodCodec());
@@ -374,6 +392,7 @@ class FakePlatformWebView {
   String get currentUrl => history.isEmpty ? null : history[currentPosition];
   JavaScriptMode javaScriptMode;
   String userAgent;
+  bool clearCookies;
 
   Future<dynamic> onMethodCall(MethodCall call) {
     switch (call.method) {
@@ -387,11 +406,13 @@ class FakePlatformWebView {
       case 'getUserAgent':
         return Future<String>.sync(() => userAgent);
       case 'updateSettings':
-        if (call.arguments['jsMode'] == null) {
+        if (call.arguments['jsMode'] == null ||
+            call.arguments['clearCookies'] == null) {
           break;
         }
         javaScriptMode = JavaScriptMode.values[call.arguments['jsMode']];
         userAgent = call.arguments['userAgent'];
+        clearCookies = call.arguments['clearCookies'];
         break;
       case 'canGoBack':
         return Future<bool>.sync(() => currentPosition > 0);

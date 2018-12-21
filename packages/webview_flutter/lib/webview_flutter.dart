@@ -27,14 +27,17 @@ class WebView extends StatefulWidget {
   /// `onWebViewCreated` callback once the web view is created.
   ///
   /// The `javaScriptMode` parameter must not be null.
+  /// The `clearCookies` parameter must not be null.
   const WebView({
     Key key,
     this.onWebViewCreated,
     this.initialUrl,
     this.javaScriptMode = JavaScriptMode.disabled,
     this.userAgent,
+    this.clearCookies = false,
     this.gestureRecognizers,
   })  : assert(javaScriptMode != null),
+        assert(clearCookies != null),
         super(key: key);
 
   /// If not null invoked once the web view is created.
@@ -59,6 +62,11 @@ class WebView extends StatefulWidget {
 
   /// The custom UserAgent.
   final String userAgent;
+
+  /// Whether removing all cookies is enabled.
+  ///
+  /// It is possible without iOS 8.
+  final bool clearCookies;
 
   @override
   State<StatefulWidget> createState() => _WebViewState();
@@ -162,32 +170,43 @@ class _CreationParams {
 }
 
 class _WebSettings {
-  _WebSettings({this.javaScriptMode, this.userAgent});
+  _WebSettings({
+    this.javaScriptMode,
+    this.clearCookies,
+    this.userAgent
+  });
 
   static _WebSettings fromWidget(WebView widget) {
     return _WebSettings(
-        javaScriptMode: widget.javaScriptMode, userAgent: widget.userAgent);
+        javaScriptMode: widget.javaScriptMode,
+        userAgent: widget.userAgent,
+        clearCookies: widget.clearCookies);
   }
 
   final JavaScriptMode javaScriptMode;
 
   final String userAgent;
 
+  final bool clearCookies;
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'jsMode': javaScriptMode.index,
       'userAgent': userAgent,
+      'clearCookies': clearCookies,
     };
   }
 
   Map<String, dynamic> updatesMap(_WebSettings newSettings) {
     if (javaScriptMode == newSettings.javaScriptMode &&
-        userAgent == newSettings.userAgent) {
+        userAgent == newSettings.userAgent &&
+        clearCookies == newSettings.clearCookies) {
       return null;
     }
     return <String, dynamic>{
       'jsMode': newSettings.javaScriptMode.index,
       'userAgent': newSettings.userAgent
+      'clearCookies': newSettings.clearCookies,
     };
   }
 }

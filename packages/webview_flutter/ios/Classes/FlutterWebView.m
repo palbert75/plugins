@@ -53,6 +53,7 @@
       configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
     }
     _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
+    _webView.navigationDelegate = self;
     NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_%lld", viewId];
     _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
     __weak __typeof__(self) weakSelf = self;
@@ -91,6 +92,8 @@
     [self onReload:call result:result];
   } else if ([[call method] isEqualToString:@"currentUrl"]) {
     [self onCurrentUrl:call result:result];
+  } else if ([[call method] isEqualToString:@"stopLoading"]) {
+    [self onStopLoading:call result:result];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -158,6 +161,11 @@
   result(_currentUrl);
 }
 
+- (void)onStopLoading:(FlutterMethodCall*)call result:(FlutterResult)result {
+  [_webView stopLoading];
+  result(nil);
+}
+
 - (void)applySettings:(NSDictionary<NSString*, id>*)settings {
   for (NSString* key in settings) {
     if ([key isEqualToString:@"jsMode"]) {
@@ -222,6 +230,16 @@
   NSURLRequest* req = [NSURLRequest requestWithURL:nsUrl];
   [_webView loadRequest:req];
   return true;
+}
+
+#pragma mark-- WKNavigationDelegate
+
+- (void)webView:(WKWebView*)webView didStartProvisionalNavigation:(WKNavigation*)navigation {
+  [_channel invokeMethod:@"onPageStarted" arguments:@{@"url" : webView.URL.absoluteString}];
+}
+
+- (void)webView:(WKWebView*)webView didFinishNavigation:(WKNavigation*)navigation {
+  [_channel invokeMethod:@"onPageFinished" arguments:@{@"url" : webView.URL.absoluteString}];
 }
 
 @end

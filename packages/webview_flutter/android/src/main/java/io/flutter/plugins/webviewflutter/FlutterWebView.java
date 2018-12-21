@@ -19,14 +19,15 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
   @SuppressWarnings("unchecked")
   FlutterWebView(Context context, BinaryMessenger messenger, int id, Map<String, Object> params) {
+    methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
+    methodChannel.setMethodCallHandler(this);
     webView = new WebView(context);
+    webView.setWebViewClient(new FlutterWebViewClient(methodChannel));
     if (params.containsKey("initialUrl")) {
       String url = (String) params.get("initialUrl");
       webView.loadUrl(url);
     }
     applySettings((Map<String, Object>) params.get("settings"));
-    methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
-    methodChannel.setMethodCallHandler(this);
   }
 
   @Override
@@ -63,6 +64,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         break;
       case "currentUrl":
         currentUrl(methodCall, result);
+        break;
+      case "stopLoading":
+        stopLoading(methodCall, result);
         break;
       default:
         result.notImplemented();
@@ -114,6 +118,11 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   @SuppressWarnings("unchecked")
   private void updateSettings(MethodCall methodCall, Result result) {
     applySettings((Map<String, Object>) methodCall.arguments);
+    result.success(null);
+  }
+
+  private void stopLoading(MethodCall methodCall, Result result) {
+    webView.stopLoading();
     result.success(null);
   }
 

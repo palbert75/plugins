@@ -92,7 +92,7 @@ void main() {
       ),
     );
     expect(controller, isNotNull);
-    expect(await controller.getUserAgent(), 'UA');
+    expect(await controller.userAgent(), 'UA');
   });
 
   testWidgets('Load url', (WidgetTester tester) async {
@@ -384,7 +384,7 @@ class FakePlatformWebView {
         currentPosition++;
         amountOfReloadsOnCurrentUrl = 0;
         return Future<void>.sync(() {});
-      case 'getUserAgent':
+      case 'userAgent':
         return Future<String>.sync(() => userAgent);
       case 'updateSettings':
         if (call.arguments['jsMode'] == null) {

@@ -48,7 +48,11 @@
       // NSUserDefaults before initializing WKWebView.
       [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent" : userAgent}];
     }
-    _webView = [[WKWebView alloc] initWithFrame:frame];
+    WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
+    if (@available(iOS 9.0, *)) {
+      configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
+    }
+    _webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
     NSString* channelName = [NSString stringWithFormat:@"plugins.flutter.io/webview_%lld", viewId];
     _channel = [FlutterMethodChannel methodChannelWithName:channelName binaryMessenger:messenger];
     __weak __typeof__(self) weakSelf = self;

@@ -234,6 +234,21 @@
 
 #pragma mark-- WKNavigationDelegate
 
+- (void)webView:(WKWebView*)webView
+    decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction
+                    decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+  NSString* url = navigationAction.request.URL.absoluteString;
+  [_channel invokeMethod:@"shouldOverrideUrlLoading"
+               arguments:@{@"url" : url}
+                  result:^(NSNumber* result) {
+                    if ([result boolValue]) {
+                      decisionHandler(WKNavigationActionPolicyCancel);
+                    } else {
+                      decisionHandler(WKNavigationActionPolicyAllow);
+                    }
+                  }];
+}
+
 - (void)webView:(WKWebView*)webView didStartProvisionalNavigation:(WKNavigation*)navigation {
   [_channel invokeMethod:@"onPageStarted" arguments:@{@"url" : webView.URL.absoluteString}];
 }

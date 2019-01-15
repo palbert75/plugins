@@ -315,6 +315,31 @@ class WebViewController {
     return _channel.invokeMethod('stopLoading');
   }
 
+  /// Evaluates a JavaScript expression in the context of the current page.
+  ///
+  /// On Android returns the evaluation result as a JSON formatted string.
+  ///
+  /// On iOS depending on the value type the return value would be one of:
+  ///
+  ///  - For primitive JavaScript types: the value string formatted (e.g JavaScript 100 returns '100').
+  ///  - For JavaScript arrays of supported types: a string formatted NSArray(e.g '(1,2,3), note that the string for NSArray is formatted and might contain newlines and extra spaces.').
+  ///  - Other non-primitive types are not supported on iOS and will complete the Future with an error.
+  ///
+  /// The Future completes with an error if a JavaScript error occurred, or on iOS, if the type of the
+  /// evaluated expression is not supported as described above.
+  Future<String> evaluateJavascript(String javascriptString) async {
+    
+    if (javascriptString == null) {
+      throw ArgumentError('The argument javascriptString must not be null. ');
+    }
+    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
+    // https://github.com/flutter/flutter/issues/26431
+    // ignore: strong_mode_implicit_dynamic_method
+    final String result =
+        await _channel.invokeMethod('evaluateJavascript', javascriptString);
+    return result;
+  }
+
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'shouldOverrideUrlLoading':
